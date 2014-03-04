@@ -1,5 +1,6 @@
 package extracteur;
 
+import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
@@ -20,10 +21,10 @@ public class Main {
 						"ZCXUiVvmPChcp4siwOi3sons812JQL8UfiwUT5vmcg2hK");
 		TwitterFactory tf = new TwitterFactory(cb.build());
 		Twitter twitter = tf.getInstance();
-		Extracteur extracteur_love = new Extracteur("love", cb, twitter);
-		Extracteur extracteur_amour = new Extracteur("amour", cb, twitter);
-		extracteur_amour.start();
+		//Extracteur extracteur_love = new Extracteur("love", 10, cb, twitter);
+		Extracteur extracteur_amour = new Extracteur("elne", 10, cb, twitter);		
 		//extracteur_love.start();
+		extracteur_amour.start();
 		
 	}
 

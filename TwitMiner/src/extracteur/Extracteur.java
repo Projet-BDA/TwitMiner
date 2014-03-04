@@ -12,30 +12,32 @@ public class Extracteur extends Thread {
 	ConfigurationBuilder cb;
 	Twitter twitter;
 	String motCle;
+	int TweetsARecuperer;
 
-	public Extracteur(String motCle, ConfigurationBuilder cb, Twitter twitter) {
+	public Extracteur(String motCle, int TweetsARecuperer, ConfigurationBuilder cb, Twitter twitter) {
 		this.motCle = motCle;
 		this.cb = cb;
 		this.twitter = twitter;
+		this.TweetsARecuperer = TweetsARecuperer;
 	}
 
 	public void run() {
-		// Requête
-		// Les tweets récupérés contiendront ce qui sera passé en argument à la
+		// Requï¿½te
+		// Les tweets rï¿½cupï¿½rï¿½s contiendront ce qui sera passï¿½ en argument ï¿½ la
 		// ligne suivante :
 		try {
 			Query query = new Query(motCle);
 			QueryResult result;
-			// Ce n'est qu'un indice de parcours de boucle, à ne pas changer
+			// Ce n'est qu'un indice de parcours de boucle, ï¿½ ne pas changer
 			int NbTweets = 0;
-			// Changez ici le nombre de tweets à récupérer
-			int NbMaxTweets = 10;
 			do {
 
 				result = twitter.search(query);
 
 				List<twitter4j.Status> tweets = result.getTweets();
 				for (twitter4j.Status tweet : tweets) {
+					// Ligne suivante Ã  remplacer par l'Ã©criture du tweet dans un fichier .csv
+					// NOTE : si problÃ¨me d'encodage ( tweets avec des "?????"), dans eclipse : Window -> Preferences -> General -> Workspace : Text file encoding : UTF-8
 					System.out.println(" " + tweet.getIsoLanguageCode() + " "
 							+ tweet.getRetweetCount() + " "
 							+ tweet.getCreatedAt() + " @"
@@ -43,11 +45,11 @@ public class Extracteur extends Thread {
 							+ tweet.getText());
 					++NbTweets;
 					;
-					if (NbTweets >= NbMaxTweets)
+					if (NbTweets >= TweetsARecuperer)
 						break;
 				}
 
-			} while (NbTweets <= NbMaxTweets
+			} while (NbTweets <= TweetsARecuperer
 					&& (query = result.nextQuery()) != null);
 		} catch (TwitterException e) {
 			// TODO Auto-generated catch block
