@@ -4,3 +4,6 @@
 *.jar
 *.war
 *.ear
+
+# Fichier de configuration pour se connecter à l'API twitter #
+twitter4j.properties
