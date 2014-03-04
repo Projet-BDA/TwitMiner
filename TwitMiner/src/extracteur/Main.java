@@ -1,3 +1,7 @@
+// NOTE : si problème d'encodage ( tweets avec des "?????"),
+// dans eclipse : Window -> Preferences -> General ->
+// Workspace : Text file encoding : UTF-8
+
 package extracteur;
 
 import twitter4j.Status;
@@ -21,11 +25,11 @@ public class Main {
 						"ZCXUiVvmPChcp4siwOi3sons812JQL8UfiwUT5vmcg2hK");
 		TwitterFactory tf = new TwitterFactory(cb.build());
 		Twitter twitter = tf.getInstance();
-		//Extracteur extracteur_love = new Extracteur("love", 10, cb, twitter);
-		Extracteur extracteur_amour = new Extracteur("elne", 10, cb, twitter);		
-		//extracteur_love.start();
+		// Extracteur extracteur_love = new Extracteur("love", 10, cb, twitter);
+		Extracteur extracteur_amour = new Extracteur("amour", 10, cb, twitter);
+		// extracteur_love.start();
 		extracteur_amour.start();
-		
+
 	}
 
 }

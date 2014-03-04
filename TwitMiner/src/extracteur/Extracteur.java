@@ -14,21 +14,30 @@ public class Extracteur extends Thread {
 	String motCle;
 	int TweetsARecuperer;
 
-	public Extracteur(String motCle, int TweetsARecuperer, ConfigurationBuilder cb, Twitter twitter) {
-		this.motCle = motCle;
+	// Fonction qui filtre les tweets : suppression des retours à la ligne, des
+	// "..." à la fin etc
+	public String filtrer(twitter4j.Status msg) {
+		String msgFiltre = msg.toString();
+		return msgFiltre;
+	}
+
+	public Extracteur(String motCle, int TweetsARecuperer,
+			ConfigurationBuilder cb, Twitter twitter) {
+		this.motCle = motCle.toLowerCase(); // L'extracteur n'est pas sensible à
+											// la casse
 		this.cb = cb;
 		this.twitter = twitter;
 		this.TweetsARecuperer = TweetsARecuperer;
 	}
 
 	public void run() {
-		// Requ�te
-		// Les tweets r�cup�r�s contiendront ce qui sera pass� en argument � la
+		// Requête
+		// Les tweets récupérés contiendront ce qui sera passé en argument à la
 		// ligne suivante :
 		try {
 			Query query = new Query(motCle);
 			QueryResult result;
-			// Ce n'est qu'un indice de parcours de boucle, � ne pas changer
+			// Ce n'est qu'un indice de parcours de boucle, à ne pas changer
 			int NbTweets = 0;
 			do {
 
@@ -36,15 +45,26 @@ public class Extracteur extends Thread {
 
 				List<twitter4j.Status> tweets = result.getTweets();
 				for (twitter4j.Status tweet : tweets) {
-					// Ligne suivante à remplacer par l'écriture du tweet dans un fichier .csv
-					// NOTE : si problème d'encodage ( tweets avec des "?????"), dans eclipse : Window -> Preferences -> General -> Workspace : Text file encoding : UTF-8
-					System.out.println(" " + tweet.getIsoLanguageCode() + " "
-							+ tweet.getRetweetCount() + " "
-							+ tweet.getCreatedAt() + " @"
-							+ tweet.getUser().getScreenName() + " - "
-							+ tweet.getText());
-					++NbTweets;
-					;
+					// On veut que le motcle soit contenu dans le tweet, et pas
+					// dans le pseudo uniquement. La requête de twitter4j
+					// cherche le mot-clé dans les status, mais aussi dans les
+					// pseudos.
+					// De plus, on enlève les retweets
+					if (!tweet.isRetweet()
+							&& tweet.getText().toLowerCase()
+									.matches(".*\\b" + motCle + "\\b.*")) {
+						// Ligne suivante à remplacer par l'écriture du tweet
+						// dans
+						// un fichier .csv
+
+						System.out.println(tweet.getId() + " "
+								+ tweet.getIsoLanguageCode() + " "
+								+ tweet.getRetweetCount() + " "
+								+ tweet.getCreatedAt() + " @"
+								+ tweet.getUser().getScreenName() + " - "
+								+ tweet.getText());
+						++NbTweets;
+					}
 					if (NbTweets >= TweetsARecuperer)
 						break;
 				}
