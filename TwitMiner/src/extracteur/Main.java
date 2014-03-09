@@ -11,14 +11,19 @@ import twitter4j.TwitterFactory;
 public class Main {
 
 	public static void main(String[] args) throws TwitterException {
+		if (args.length != 2) {
+			System.out
+					.println("ERREUR : Il faut 2 arguments : le mot-clé et le nombre de tweets désirés. Exemple : twitminer.jar bonjour 50");
+		}
 		// Configuration avec l'application twitter
 		TwitterFactory tf = new TwitterFactory();
 		Twitter twitter = tf.getInstance();
+
+		Extracteur extracteur = new Extracteur(args[0],
+				Integer.parseInt(args[1]), twitter);
 		
-		// Extracteur extracteur_love = new Extracteur("love", 10, twitter);
-		Extracteur extracteur_amour = new Extracteur("amour", 50, twitter);
-		// extracteur_love.start();
-		extracteur_amour.start();
+		
+		extracteur.start();
 
 	}
 
