@@ -21,6 +21,7 @@ public class ExtracteurCsv extends Thread {
 	String motCle;
 	long NbTweetsARecuperer;
 	String nomFichier;
+	long idLePlusAncienRecupere = 0;
 
 	// Fonction qui filtre les tweets : suppression des retours à la ligne, des
 	// "..." à la fin etc
@@ -37,6 +38,17 @@ public class ExtracteurCsv extends Thread {
 		this.twitter = twitter;
 		this.NbTweetsARecuperer = NbTweetsARecuperer;
 	}
+	
+	public ExtracteurCsv(String motCle, long NbTweetsARecuperer, Twitter twitter,long idLePlusAncienRecupere) {
+		this.motCle = Normalizer.normalize(motCle.toLowerCase(),
+				Normalizer.Form.NFD); // L'extracteur n'est pas sensible à
+		// la casse NI AUX ACCENTS
+		this.twitter = twitter;
+		this.NbTweetsARecuperer = NbTweetsARecuperer;
+		this.idLePlusAncienRecupere = idLePlusAncienRecupere;
+	}
+	
+	
 
 	public String getNomFichier() {
 		return nomFichier;
@@ -59,7 +71,6 @@ public class ExtracteurCsv extends Thread {
 			Query query = new Query(motCle);
 			QueryResult result;
 			long NbTweetsEnregistres = 0;
-			long idLePlusAncienRecupere = 0;
 			if (NbTweetsARecuperer > 0) {
 				do {
 					try {
