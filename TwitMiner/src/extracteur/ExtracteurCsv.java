@@ -39,7 +39,7 @@ public class ExtracteurCsv extends Thread {
 		this.NbTweetsARecuperer = NbTweetsARecuperer;
 	}
 	
-	public ExtracteurCsv(String motCle, long NbTweetsARecuperer, Twitter twitter,long idLePlusAncienRecupere) {
+	public ExtracteurCsv(String motCle, long NbTweetsARecuperer, Twitter twitter, long idLePlusAncienRecupere) {
 		this.motCle = Normalizer.normalize(motCle.toLowerCase(),
 				Normalizer.Form.NFD); // L'extracteur n'est pas sensible à
 		// la casse NI AUX ACCENTS

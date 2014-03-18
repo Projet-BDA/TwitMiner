@@ -12,16 +12,25 @@ public class Main {
 
 	public static void main(String[] args) throws TwitterException,
 			InterruptedException {
-		if (args.length != 2) {
-			System.out
-					.println("ERREUR : Il faut 2 arguments : le mot-clé et le nombre de tweets désirés. Exemple : twitminer.jar bonjour 50");
-		}
+
 		// Configuration avec l'application twitter
 		TwitterFactory tf = new TwitterFactory();
 		Twitter twitter = tf.getInstance();
 
-		ExtracteurCsv extracteur = new ExtracteurCsv(args[0],
-				Integer.parseInt(args[1]), twitter);
+		ExtracteurCsv extracteur;
+
+		extracteur = new ExtracteurCsv(args[0], Integer.parseInt(args[1]),
+				twitter);
+		if (args.length == 3)
+		// Le 3ème argument sert à rajouter l'id maximum des tweets, pour
+		// reprendre une requête à un point précis.
+		{
+			extracteur = new ExtracteurCsv(args[0], Integer.parseInt(args[1]),
+					twitter, Long.parseLong(args[2]));
+		} else if (args.length != 2) {
+			System.out
+					.println("ERREUR : Il faut 2 arguments : le mot-clé et le nombre de tweets désirés. Exemple : twitminer.jar bonjour 50");
+		}
 
 		extracteur.start();
 		extracteur.join();
