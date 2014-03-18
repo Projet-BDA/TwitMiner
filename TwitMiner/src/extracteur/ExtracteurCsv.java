@@ -50,7 +50,8 @@ public class ExtracteurCsv extends Thread {
 			// On enregistre les tweets dans un fichier
 			DateFormat dateFormat = new SimpleDateFormat(" - HH_mm_ss");
 			Date dateActuelle = new Date();
-			this.nomFichier = motCle + dateFormat.format(dateActuelle) + ".csv";
+			this.nomFichier = motCle.replaceAll("[-+.^:,?]", "")
+					+ dateFormat.format(dateActuelle) + ".csv";
 			File fichier = new File(nomFichier);
 			@SuppressWarnings("resource")
 			BufferedWriter fichierTweets = new BufferedWriter(new FileWriter(
@@ -73,11 +74,16 @@ public class ExtracteurCsv extends Thread {
 							// ignore le tweet) ? Est un retweet (si oui on
 							// jette aussi) ?
 							if (tweet.getId() != idLePlusAncienRecupere
-									&& !tweet.isRetweet()
-									&& Normalizer.normalize(
-											tweet.getText().toLowerCase(),
-											Normalizer.Form.NFD).matches(
-											".*\\b" + motCle + "\\b.*")) {
+									&& !tweet.isRetweet()/*
+														 * &&
+														 * Normalizer.normalize(
+														 * tweet
+														 * .getText().toLowerCase
+														 * (),
+														 * Normalizer.Form.NFD
+														 * ).matches( ".*\\b" +
+														 * motCle + "\\b.*")
+														 */) {
 								// Mise en forme des tweets
 								// (séparation de chaque mot par des ";")
 								String ligne = ("\"" + tweet.getId() + "\";\""
@@ -118,6 +124,8 @@ public class ExtracteurCsv extends Thread {
 					} catch (TwitterException e) {
 						if (e.exceededRateLimitation()) {
 							// Trop de requêtes, il faut attendre.
+							// On met tout ce qu'on a trouvé à l'abri
+							fichierTweets.flush();
 							int nbMinutes = 1;
 							sleep(nbMinutes * 60 * 1000);
 							System.out

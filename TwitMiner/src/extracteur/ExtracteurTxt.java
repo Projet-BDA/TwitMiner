@@ -52,11 +52,12 @@ public class ExtracteurTxt extends Thread {
 			// On enregistre les tweets dans un fichier
 			DateFormat dateFormat = new SimpleDateFormat(" - HH_mm_ss");
 			Date dateActuelle = new Date();
-			this.nomFichier = motCle + dateFormat.format(dateActuelle)
-					+ ".txt";
+			this.nomFichier = motCle.replaceAll("[-+.^:,?]", "")
+					+ dateFormat.format(dateActuelle) + ".txt";
 			File fichier = new File(nomFichier);
 			@SuppressWarnings("resource")
-			BufferedWriter fichierTweets = new BufferedWriter(new FileWriter(fichier, true));
+			BufferedWriter fichierTweets = new BufferedWriter(new FileWriter(
+					fichier, true));
 			Query query = new Query(motCle);
 			QueryResult result;
 			long NbTweetsEnregistres = 0;
