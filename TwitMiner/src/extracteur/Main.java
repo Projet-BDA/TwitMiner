@@ -1,4 +1,4 @@
-// NOTE : si problème d'encodage ( tweets avec des "?????"),
+// NOTE : ATTENTION A L'ENCODAGE !!! si problème d'encodage ( tweets avec des "?????"),
 // dans eclipse : Window -> Preferences -> General ->
 // Workspace : Text file encoding : UTF-8
 
@@ -10,7 +10,8 @@ import twitter4j.TwitterFactory;
 
 public class Main {
 
-	public static void main(String[] args) throws TwitterException, InterruptedException {
+	public static void main(String[] args) throws TwitterException,
+			InterruptedException {
 		if (args.length != 2) {
 			System.out
 					.println("ERREUR : Il faut 2 arguments : le mot-clé et le nombre de tweets désirés. Exemple : twitminer.jar bonjour 50");
@@ -19,12 +20,14 @@ public class Main {
 		TwitterFactory tf = new TwitterFactory();
 		Twitter twitter = tf.getInstance();
 
-
-		Extracteur extracteur = new Extracteur(args[0],
+		ExtracteurCsv extracteur = new ExtracteurCsv(args[0],
 				Integer.parseInt(args[1]), twitter);
-		
-		
+
 		extracteur.start();
+		extracteur.join();
+		System.out
+				.println("Phase d'extraction terminée. Consultez les tweets dans : "
+						+ extracteur.getNomFichier());
 	}
 
 }

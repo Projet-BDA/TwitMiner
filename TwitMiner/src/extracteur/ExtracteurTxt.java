@@ -1,9 +1,13 @@
+// Hors sujet : crée un fichier txt (lisible faiclement à l'aide d'un éditeur de texte) au lieu d'un fichier csv
+
 package extracteur;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DateFormat;
+import java.text.Normalizer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -14,10 +18,11 @@ import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 
-public class Extracteur extends Thread {
+public class ExtracteurTxt extends Thread {
 	Twitter twitter;
 	String motCle;
 	long NbTweetsARecuperer;
+	String nomFichier;
 
 	// Fonction qui filtre les tweets : suppression des retours à la ligne, des
 	// "..." à la fin etc
@@ -27,11 +32,16 @@ public class Extracteur extends Thread {
 		return resultat;
 	}
 
-	public Extracteur(String motCle, long NbTweetsARecuperer, Twitter twitter) {
-		this.motCle = motCle.toLowerCase(); // L'extracteur n'est pas sensible à
-											// la casse
+	public ExtracteurTxt(String motCle, long NbTweetsARecuperer, Twitter twitter) {
+		this.motCle = Normalizer.normalize(motCle.toLowerCase(),
+				Normalizer.Form.NFD); // L'extracteur n'est pas sensible à
+		// la casse NI AUX ACCENTS
 		this.twitter = twitter;
 		this.NbTweetsARecuperer = NbTweetsARecuperer;
+	}
+
+	public String getNomFichier() {
+		return nomFichier;
 	}
 
 	public void run() {
@@ -42,10 +52,11 @@ public class Extracteur extends Thread {
 			// On enregistre les tweets dans un fichier
 			DateFormat dateFormat = new SimpleDateFormat(" - HH_mm_ss");
 			Date dateActuelle = new Date();
-			File fichier = new File(motCle + dateFormat.format(dateActuelle)
-					+ ".txt");
-			FileWriter fichierTweets = new FileWriter(fichier, true);
-
+			this.nomFichier = motCle + dateFormat.format(dateActuelle)
+					+ ".txt";
+			File fichier = new File(nomFichier);
+			@SuppressWarnings("resource")
+			BufferedWriter fichierTweets = new BufferedWriter(new FileWriter(fichier, true));
 			Query query = new Query(motCle);
 			QueryResult result;
 			long NbTweetsEnregistres = 0;
@@ -65,9 +76,10 @@ public class Extracteur extends Thread {
 							// jette aussi) ?
 							if (tweet.getId() != idLePlusAncienRecupere
 									&& !tweet.isRetweet()
-									&& tweet.getText()
-											.toLowerCase()
-											.matches(".*\\b" + motCle + "\\b.*")) {
+									&& Normalizer.normalize(
+											tweet.getText().toLowerCase(),
+											Normalizer.Form.NFD).matches(
+											".*\\b" + motCle + "\\b.*")) {
 								// Mise en forme des tweets
 								// (" id - date - fr @pseudo blablabla")
 								String ligne = (tweet.getId() + " - "
@@ -113,7 +125,8 @@ public class Extracteur extends Thread {
 				} while (NbTweetsEnregistres < NbTweetsARecuperer);
 			}
 
-			// Fermeture du fichier, tous les tweets ont normalement été récupérés
+			// Fermeture du fichier, tous les tweets ont normalement été
+			// récupérés
 			fichierTweets.close();
 
 		} catch (TwitterException | IOException | InterruptedException e) {
