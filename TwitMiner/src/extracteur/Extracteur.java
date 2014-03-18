@@ -42,47 +42,84 @@ public class Extracteur extends Thread {
 			// On enregistre les tweets dans un fichier
 			DateFormat dateFormat = new SimpleDateFormat(" - HH_mm_ss");
 			Date dateActuelle = new Date();
-			File fichier = new File(motCle + dateFormat.format(dateActuelle) + ".txt");
+			File fichier = new File(motCle + dateFormat.format(dateActuelle)
+					+ ".txt");
 			FileWriter fichierTweets = new FileWriter(fichier, true);
 
 			Query query = new Query(motCle);
 			QueryResult result;
 			long NbTweetsEnregistres = 0;
-            long idLePlusAncienRecupere = 0;
+			long idLePlusAncienRecupere = 0;
 			if (NbTweetsARecuperer > 0) {
 				do {
-					result = twitter.search(query.count(100));
-					List<Status> tweets = result.getTweets();
-					for (Status tweet : tweets) {
-						if (!tweet.isRetweet()
-								&& tweet.getText().toLowerCase()
-										.matches(".*\\b" + motCle + "\\b.*")) {
-							String ligne = (tweet.getId() + " - " + tweet.getCreatedAt() + " "
-									+ tweet.getLang() + " @"
-									+ tweet.getUser().getScreenName() + " - " + filtrer(tweet
-									.getText()));
-							System.out.println(ligne);
-							fichierTweets.write(ligne
-									+ System.getProperty("line.separator"));
-							++NbTweetsEnregistres;
-							
-						}
-                        idLePlusAncienRecupere = tweet.getId();
-                        result = twitter.search(query.maxId(idLePlusAncienRecupere));
-						// System.out.println("Nb de tweets récupérés : "
-						// + NbTweetsEnregistres);
-						if (NbTweetsEnregistres >= NbTweetsARecuperer)
-							break;
-					}
+					try {
+						// 100 tweets par page (le max)
+						result = twitter.search(query.count(100));
+						// Récupération des tweets dans une liste
+						List<Status> tweets = result.getTweets();
+						for (Status tweet : tweets) {
+							// Ici on analyse les tweets. Est-ce un nouveau
+							// tweet ? Et est-ce que le mot-clé recherché est
+							// bien dans le message ou le pseudo (auquel cas on
+							// ignore le tweet) ? Est un retweet (si oui on
+							// jette aussi) ?
+							if (tweet.getId() != idLePlusAncienRecupere
+									&& !tweet.isRetweet()
+									&& tweet.getText()
+											.toLowerCase()
+											.matches(".*\\b" + motCle + "\\b.*")) {
+								// Mise en forme des tweets
+								// (" id - date - fr @pseudo blablabla")
+								String ligne = (tweet.getId() + " - "
+										+ tweet.getCreatedAt() + " "
+										+ tweet.getLang() + " @"
+										+ tweet.getUser().getScreenName()
+										+ " - " + filtrer(tweet.getText()));
+								// On l'affiche dans la console...
+								System.out.println(ligne);
+								// Puis on l'insère dans le fichier ouvert au
+								// début
+								fichierTweets.write(ligne
+										+ System.getProperty("line.separator"));
+								++NbTweetsEnregistres;
+								// On garde l'id du dernier tweet pour éviter
+								// les doublons (répond à la question
+								// "Est-ce un nouveau tweet ?")
+								idLePlusAncienRecupere = tweet.getId();
 
+							}
+
+							System.out.println("Nb de tweets récupérés : "
+									+ NbTweetsEnregistres);
+							if (NbTweetsEnregistres >= NbTweetsARecuperer)
+								// Le compte est bon
+								break;
+						}
+						result = twitter.search(query
+								.maxId(idLePlusAncienRecupere));
+					} catch (TwitterException e) {
+						if (e.exceededRateLimitation()) {
+							// Trop de requêtes, il faut attendre.
+							int nbMinutes = 1;
+							sleep(nbMinutes * 60 * 1000);
+							System.out
+									.println("Nombre de reqûetes autorisées dépassé. Nouvel essai dans "
+											+ nbMinutes + " minute(s)...");
+						} else
+							// Si l'erreur vient d'ailleurs, on fait remonter
+							// l'exception
+							throw e;
+					}
 				} while (NbTweetsEnregistres < NbTweetsARecuperer);
 			}
 
+			// Fermeture du fichier, tous les tweets ont normalement été récupérés
 			fichierTweets.close();
 
-		} catch (TwitterException | IOException e) {
+		} catch (TwitterException | IOException | InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+
 		}
 	}// run()
 }// Extracteur

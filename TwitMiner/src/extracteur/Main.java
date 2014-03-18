@@ -10,7 +10,7 @@ import twitter4j.TwitterFactory;
 
 public class Main {
 
-	public static void main(String[] args) throws TwitterException {
+	public static void main(String[] args) throws TwitterException, InterruptedException {
 		if (args.length != 2) {
 			System.out
 					.println("ERREUR : Il faut 2 arguments : le mot-clé et le nombre de tweets désirés. Exemple : twitminer.jar bonjour 50");
@@ -25,7 +25,6 @@ public class Main {
 		
 		
 		extracteur.start();
-
 	}
 
 }
