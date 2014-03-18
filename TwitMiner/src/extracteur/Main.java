@@ -19,6 +19,7 @@ public class Main {
 		TwitterFactory tf = new TwitterFactory();
 		Twitter twitter = tf.getInstance();
 
+
 		Extracteur extracteur = new Extracteur(args[0],
 				Integer.parseInt(args[1]), twitter);
 		
