@@ -2,7 +2,7 @@
 // dans eclipse : Window -> Preferences -> General ->
 // Workspace : Text file encoding : UTF-8
 
-package extracteur;
+package recuperateur;
 
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
@@ -17,15 +17,15 @@ public class Main {
 		TwitterFactory tf = new TwitterFactory();
 		Twitter twitter = tf.getInstance();
 
-		ExtracteurCsv extracteur;
+		RecuperateurCsv extracteur;
 
-		extracteur = new ExtracteurCsv(args[0], Integer.parseInt(args[1]),
+		extracteur = new RecuperateurCsv(args[0], Integer.parseInt(args[1]),
 				twitter);
 		if (args.length == 3)
 		// Le 3ème argument sert à rajouter l'id maximum des tweets, pour
 		// reprendre une requête à un point précis.
 		{
-			extracteur = new ExtracteurCsv(args[0], Integer.parseInt(args[1]),
+			extracteur = new RecuperateurCsv(args[0], Integer.parseInt(args[1]),
 					twitter, Long.parseLong(args[2]));
 		} else if (args.length != 2) {
 			System.out

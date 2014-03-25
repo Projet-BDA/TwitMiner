@@ -1,4 +1,6 @@
-package extracteur;
+// Hors sujet : crée un fichier txt (lisible faiclement à l'aide d'un éditeur de texte) au lieu d'un fichier csv
+
+package recuperateur;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -16,12 +18,11 @@ import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 
-public class ExtracteurCsv extends Thread {
+public class RecuperateurTxt extends Thread {
 	Twitter twitter;
 	String motCle;
 	long NbTweetsARecuperer;
 	String nomFichier;
-	long idLePlusAncienRecupere = 0;
 
 	// Fonction qui filtre les tweets : suppression des retours à la ligne, des
 	// "..." à la fin etc
@@ -31,24 +32,13 @@ public class ExtracteurCsv extends Thread {
 		return resultat;
 	}
 
-	public ExtracteurCsv(String motCle, long NbTweetsARecuperer, Twitter twitter) {
+	public RecuperateurTxt(String motCle, long NbTweetsARecuperer, Twitter twitter) {
 		this.motCle = Normalizer.normalize(motCle.toLowerCase(),
 				Normalizer.Form.NFD); // L'extracteur n'est pas sensible à
 		// la casse NI AUX ACCENTS
 		this.twitter = twitter;
 		this.NbTweetsARecuperer = NbTweetsARecuperer;
 	}
-	
-	public ExtracteurCsv(String motCle, long NbTweetsARecuperer, Twitter twitter, long idLePlusAncienRecupere) {
-		this.motCle = Normalizer.normalize(motCle.toLowerCase(),
-				Normalizer.Form.NFD); // L'extracteur n'est pas sensible à
-		// la casse NI AUX ACCENTS
-		this.twitter = twitter;
-		this.NbTweetsARecuperer = NbTweetsARecuperer;
-		this.idLePlusAncienRecupere = idLePlusAncienRecupere;
-	}
-	
-	
 
 	public String getNomFichier() {
 		return nomFichier;
@@ -63,7 +53,7 @@ public class ExtracteurCsv extends Thread {
 			DateFormat dateFormat = new SimpleDateFormat(" - HH_mm_ss");
 			Date dateActuelle = new Date();
 			this.nomFichier = motCle.replaceAll("[-+.^:,?]", "")
-					+ dateFormat.format(dateActuelle) + ".csv";
+					+ dateFormat.format(dateActuelle) + ".txt";
 			File fichier = new File(nomFichier);
 			@SuppressWarnings("resource")
 			BufferedWriter fichierTweets = new BufferedWriter(new FileWriter(
@@ -71,6 +61,7 @@ public class ExtracteurCsv extends Thread {
 			Query query = new Query(motCle);
 			QueryResult result;
 			long NbTweetsEnregistres = 0;
+			long idLePlusAncienRecupere = 0;
 			if (NbTweetsARecuperer > 0) {
 				do {
 					try {
@@ -85,37 +76,24 @@ public class ExtracteurCsv extends Thread {
 							// ignore le tweet) ? Est un retweet (si oui on
 							// jette aussi) ?
 							if (tweet.getId() != idLePlusAncienRecupere
-									&& !tweet.isRetweet()/*
-														 * &&
-														 * Normalizer.normalize(
-														 * tweet
-														 * .getText().toLowerCase
-														 * (),
-														 * Normalizer.Form.NFD
-														 * ).matches( ".*\\b" +
-														 * motCle + "\\b.*")
-														 */) {
+									&& !tweet.isRetweet()
+									&& Normalizer.normalize(
+											tweet.getText().toLowerCase(),
+											Normalizer.Form.NFD).matches(
+											".*\\b" + motCle + "\\b.*")) {
 								// Mise en forme des tweets
-								// (séparation de chaque mot par des ";")
-								String ligne = ("\"" + tweet.getId() + "\";\""
-										+ tweet.getCreatedAt() + "\";\""
-										+ tweet.getLang() + "\";\"@" + tweet
-										.getUser().getScreenName());
-								String[] motsDuTweet = filtrer(tweet.getText())
-										.split(" ");
-								for (int i = 0; i < motsDuTweet.length; ++i) {
-									ligne += "\";\"" + motsDuTweet[i];
-								}
-								ligne += "\";\"";
+								// (" id - date - fr @pseudo blablabla")
+								String ligne = (tweet.getId() + " - "
+										+ tweet.getCreatedAt() + " "
+										+ tweet.getLang() + " @"
+										+ tweet.getUser().getScreenName()
+										+ " - " + filtrer(tweet.getText()));
 								// On l'affiche dans la console...
 								System.out.println(ligne);
 								// Puis on l'insère dans le fichier ouvert au
 								// début
-								fichierTweets.write(ligne + "\"\n\"");
-								// Voir la RFC d'un fichier .csv. Chaque ligne
-								// du classeur est séparée par un retour à la
-								// ligne qui DOIT être compris entre des double
-								// quotes
+								fichierTweets.write(ligne
+										+ System.getProperty("line.separator"));
 								++NbTweetsEnregistres;
 								// On garde l'id du dernier tweet pour éviter
 								// les doublons (répond à la question
@@ -135,8 +113,6 @@ public class ExtracteurCsv extends Thread {
 					} catch (TwitterException e) {
 						if (e.exceededRateLimitation()) {
 							// Trop de requêtes, il faut attendre.
-							// On met tout ce qu'on a trouvé à l'abri
-							fichierTweets.flush();
 							int nbMinutes = 1;
 							sleep(nbMinutes * 60 * 1000);
 							System.out
