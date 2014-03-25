@@ -22,7 +22,12 @@ public class CSVToTrans {
             if (!result.exists()) {
                 result.createNewFile();
             }
+            File correspondance = new File("Apriori\\src\\correspondance.txt");
+            if (!correspondance.exists()) {
+                correspondance.createNewFile();
+            }
             BufferedWriter fichierTrans = new BufferedWriter(new FileWriter(result));
+            BufferedWriter fichierCorrespondance = new BufferedWriter(new FileWriter(correspondance));
 
             while ((ligne = fichierCsv.readLine()) != null) {
                 // Traitement d'un tweet
@@ -41,11 +46,13 @@ public class CSVToTrans {
                     if (!table.contains(transactions[i])) {
                         // Si le mot apparait pour la première fois, on l'ajoute dans le tableau
                         table.add(transactions[i]);
+                        fichierCorrespondance.write(transactions[i]);
+                        fichierCorrespondance.newLine();
                     }
                     // On ajoute l'index lié au mot
                     ecriture += table.indexOf(transactions[i]) + " ";
                 }
-                System.out.println(ecriture);
+                //System.out.println(ecriture);
                 fichierTrans.write(ecriture);
                 fichierTrans.newLine();
 
@@ -53,6 +60,7 @@ public class CSVToTrans {
 
             fichierTrans.close();
             fichierCsv.close();
+            fichierCorrespondance.close();
 
         } catch (IOException e) {
             e.printStackTrace();
