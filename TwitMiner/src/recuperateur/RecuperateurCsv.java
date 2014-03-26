@@ -31,15 +31,17 @@ public class RecuperateurCsv extends Thread {
 		return resultat;
 	}
 
-	public RecuperateurCsv(String motCle, long NbTweetsARecuperer, Twitter twitter) {
+	public RecuperateurCsv(String motCle, long NbTweetsARecuperer,
+			Twitter twitter) {
 		this.motCle = Normalizer.normalize(motCle.toLowerCase(),
 				Normalizer.Form.NFD); // L'extracteur n'est pas sensible à
 		// la casse NI AUX ACCENTS
 		this.twitter = twitter;
 		this.NbTweetsARecuperer = NbTweetsARecuperer;
 	}
-	
-	public RecuperateurCsv(String motCle, long NbTweetsARecuperer, Twitter twitter, long idLePlusAncienRecupere) {
+
+	public RecuperateurCsv(String motCle, long NbTweetsARecuperer,
+			Twitter twitter, long idLePlusAncienRecupere) {
 		this.motCle = Normalizer.normalize(motCle.toLowerCase(),
 				Normalizer.Form.NFD); // L'extracteur n'est pas sensible à
 		// la casse NI AUX ACCENTS
@@ -47,8 +49,6 @@ public class RecuperateurCsv extends Thread {
 		this.NbTweetsARecuperer = NbTweetsARecuperer;
 		this.idLePlusAncienRecupere = idLePlusAncienRecupere;
 	}
-	
-	
 
 	public String getNomFichier() {
 		return nomFichier;
@@ -85,16 +85,11 @@ public class RecuperateurCsv extends Thread {
 							// ignore le tweet) ? Est un retweet (si oui on
 							// jette aussi) ?
 							if (tweet.getId() != idLePlusAncienRecupere
-									&& !tweet.isRetweet()/*
-														 * &&
-														 * Normalizer.normalize(
-														 * tweet
-														 * .getText().toLowerCase
-														 * (),
-														 * Normalizer.Form.NFD
-														 * ).matches( ".*\\b" +
-														 * motCle + "\\b.*")
-														 */) {
+									&& !tweet.isRetweet()
+									&& Normalizer.normalize(
+											tweet.getText().toLowerCase(),
+											Normalizer.Form.NFD).matches(
+											".*\\b" + motCle + "\\b.*")) {
 								// Mise en forme des tweets
 								// (séparation de chaque mot par des ";")
 								String ligne = ("\"" + tweet.getId() + "\";\""
