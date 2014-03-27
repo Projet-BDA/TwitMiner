@@ -6,30 +6,35 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
 
 public class CsvToTrans {
 
 	String separateur = "\";\"";
-	String ligne = "";
 	List<String> table = new ArrayList<>();
-	String m_nomFichier = "";
+	String nomFichier = "";
 
 	public CsvToTrans(String nomFichier) throws IOException {
-		this.m_nomFichier = nomFichier;
+		this.nomFichier = nomFichier;
 	}
 
 	public void run() throws IOException {
 
 		try {
 			BufferedReader fichierCsv = new BufferedReader(new FileReader(
-					m_nomFichier));
-			File result = new File("Apriori\\src\\result.trans");
+					nomFichier));
+			File result = new File(nomFichier.substring(0,
+					nomFichier.lastIndexOf('.'))
+					+ ".trans");
+			System.out.println(result.getName() + " en cours de génération...");
 			if (!result.exists()) {
 				result.createNewFile();
 			}
-			File correspondance = new File("Apriori\\src\\correspondance.txt");
+			File correspondance = new File(nomFichier.substring(0,
+					nomFichier.lastIndexOf('.'))
+					+ ".transc");
 			if (!correspondance.exists()) {
 				correspondance.createNewFile();
 			}
@@ -37,12 +42,14 @@ public class CsvToTrans {
 					result));
 			BufferedWriter fichierCorrespondance = new BufferedWriter(
 					new FileWriter(correspondance));
-
-			while ((ligne = fichierCsv.readLine()) != null) {
+			String ligne = new String("gnééééé");
+			while ((ligne = fichierCsv.readLine()) != null && ligne.length() >= 2) {
 				// Traitement d'un tweet
-
-				String ecriture = "";
-				String[] transactions = ligne.toLowerCase().split(separateur);
+				System.out.println(ligne);
+				String ecriture = new String("");
+				ligne = Normalizer.normalize(ligne.toLowerCase(),
+						Normalizer.Form.NFD);
+				String[] transactions = ligne.split(separateur);
 
 				// String[0] = id du tweet
 				// String[1] = date
@@ -62,7 +69,7 @@ public class CsvToTrans {
 					// On ajoute l'index lié au mot
 					ecriture += table.indexOf(transactions[i]) + " ";
 				}
-				// System.out.println(ecriture);
+				System.out.println(ecriture);
 				fichierTrans.write(ecriture);
 				fichierTrans.newLine();
 

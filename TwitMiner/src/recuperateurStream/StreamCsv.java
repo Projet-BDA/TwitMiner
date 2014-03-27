@@ -83,7 +83,7 @@ public class StreamCsv extends Thread {
 			public void onStatus(Status status) {
 				// On met en forme le tweet, comme dans l'autre récupérateur
 				// (pas de retweet)
-				if (status.isRetweet()) {
+				if (!status.isRetweet()) {
 					String ligne = ("\"" + status.getId() + "\";\""
 							+ status.getCreatedAt() + "\";\""
 							+ status.getLang() + "\";\"@" + status.getUser()

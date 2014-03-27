@@ -12,25 +12,27 @@ import java.util.List;
 public class TransToCsv {
 	String ligne = "";
 	List<String> table = new ArrayList<>();
-	String m_nomFichier = "";
+	String nomFichier = "";
 
 	public TransToCsv(String nomFichier) throws IOException {
-		this.m_nomFichier = nomFichier;
+		this.nomFichier = nomFichier;
 	}
 
 	public void run() throws IOException {
 
 		try {
 			BufferedReader fichierTrans = new BufferedReader(new FileReader(
-					m_nomFichier));
-			File result = new File("Apriori\\src\\result.csv");
+					nomFichier));
+			File result = new File(nomFichier.substring(0,
+					nomFichier.lastIndexOf('.')) + ".csv");
 			if (!result.exists()) {
 				result.createNewFile();
 			}
 			BufferedWriter fichierCSV = new BufferedWriter(new FileWriter(
 					result));
 			BufferedReader fichierCorrespondance = new BufferedReader(
-					new FileReader("Apriori\\src\\correspondance.txt"));
+					new FileReader(nomFichier.substring(0,
+							nomFichier.lastIndexOf('.')) + ".transc"));
 
 			while ((ligne = fichierCorrespondance.readLine()) != null) {
 				table.add(ligne);
@@ -46,6 +48,7 @@ public class TransToCsv {
 					ecriture += table.get(Integer.parseInt(transactions[i]))
 							+ "\";\"";
 				}
+				ecriture += "\"\n\"";
 				// On ajoute le mot correspondant et un séparateur
 				System.out.println(ecriture);
 				fichierCSV.write(ecriture);
